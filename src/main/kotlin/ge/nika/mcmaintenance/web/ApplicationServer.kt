@@ -3,14 +3,19 @@ package ge.nika.mcmaintenance.web
 import ge.nika.mcmaintenance.util.toJson
 import org.http4k.core.*
 import org.http4k.core.HttpHandler
-import org.http4k.filter.DebuggingFilters
+import org.http4k.filter.CorsPolicy
+import org.http4k.filter.DebuggingFilters.PrintRequestAndResponse
+import org.http4k.filter.ServerFilters.Cors
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 
-fun applicationWebEndpoints(): HttpHandler =  DebuggingFilters.PrintRequestAndResponse().then(routes(
-    logIn()
-))
+fun applicationWebEndpoints(): HttpHandler =
+    PrintRequestAndResponse()
+        .then(Cors(CorsPolicy.UnsafeGlobalPermissive))
+        .then(
+            routes(logIn())
+        )
 
 
 fun logIn(): RoutingHttpHandler =
