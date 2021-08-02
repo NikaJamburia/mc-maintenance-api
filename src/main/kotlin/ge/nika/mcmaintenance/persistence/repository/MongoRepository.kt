@@ -4,7 +4,10 @@ import com.mongodb.MongoClient
 import ge.nika.mcmaintenance.persistence.data.BikeSchedule
 import ge.nika.mcmaintenance.persistence.data.Session
 import ge.nika.mcmaintenance.persistence.data.User
+import ge.nika.mcmaintenance.persistence.data.UsersScheduleData
+import ge.nika.mcmaintenance.util.fromJson
 import ge.nika.mcmaintenance.util.toJson
+import org.bson.BsonArray
 import org.bson.Document
 import org.joda.time.LocalDateTime
 
@@ -29,7 +32,7 @@ class MongoRepository(
             .first()
 
         return sessionDocument ?. let {
-            Session(it.getString("_id"), it.getString("userId"), LocalDateTime.parse(it.getString("expiresOn")))
+            Session(it.getString("_id"), it.getString("userId"), fromJson(it.getString("expiresOn")))
         }
     }
 
@@ -39,21 +42,22 @@ class MongoRepository(
             .first()
 
         return userDocument
-            ?. getList("bikeSchedules", BikeSchedule::class.java)
+            ?.let {  fromJson<UsersScheduleData>(it.toJson()).bikeSchedules }
             ?: listOf()
     }
 
 
     override fun insertUsersMaintenanceData(userId: String, data: List<BikeSchedule>) {
         val usersDocument = usersCollection().find(Document("_id", userId)).first() ?: error("User not found")
-        usersDocument["bikeSchedules"] = Document.parse(toJson(data))
-
+        usersDocument["bikeSchedules"] = BsonArray.parse(toJson(data))
+        val result = usersCollection().updateOne(Document("_id", userId), usersDocument)
+        check(result.matchedCount == 1L) { "Data not found" }
     }
 
     override fun saveSession(session: Session) {
         val sessionDocument = Document("_id", session.id)
             .append("userId", session.userId)
-            .append("expiresOn", session.expiresOn.toString())
+            .append("expiresOn", toJson(session.expiresOn))
         sessionsCollection().insertOne(sessionDocument)
     }
 

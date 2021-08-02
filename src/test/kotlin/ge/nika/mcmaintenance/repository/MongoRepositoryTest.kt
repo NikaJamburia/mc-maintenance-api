@@ -2,17 +2,26 @@ package ge.nika.mcmaintenance.repository
 
 import com.mongodb.MongoClient
 import com.mongodb.client.MongoCollection
-import ge.nika.mcmaintenance.persistence.data.Session
+import com.mongodb.client.result.UpdateResult
+import ge.nika.mcmaintenance.getResourceFile
+import ge.nika.mcmaintenance.persistence.data.*
 import ge.nika.mcmaintenance.persistence.repository.MongoRepository
+import ge.nika.mcmaintenance.util.fromJson
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.bson.BsonArray
+import org.bson.BsonString
 import org.bson.Document
+import org.bson.conversions.Bson
 import org.joda.time.LocalDateTime
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.lang.IllegalStateException
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class MongoRepositoryTest {
 
@@ -21,14 +30,20 @@ class MongoRepositoryTest {
     private val nikasDocument = Document("_id", "123")
         .append("userName", "nika")
         .append("password", "pass123")
+        .append("bikeSchedules", BsonArray.parse(this.getResourceFile("schedule.json").readText()))
 
     private val sessionDocument = Document("_id", "123")
         .append("userId", "someUser")
-        .append("expiresOn", "2021-08-01T12:00:15.000")
+        .append("expiresOn", "[2021,8,2,16,34,31,240]")
 
     private val usersCollection = mockk<MongoCollection<Document>> {
         every { find(Document("userName", "nika")).first() } returns nikasDocument
+        every { find(Document("_id", "123")).first() } returns nikasDocument
+        every { find(Document("_id", "1234")).first() } returns nikasDocument
+        every { find(Document("_id", "noUser")).first() } returns null
         every { find(Document("userName", "beqa")).first() } returns null
+        every { updateOne(Document("_id", "123"), any<Bson>()) } returns UpdateResult.acknowledged(1, 1, BsonString("aaa"))
+        every { updateOne(Document("_id", "1234"), any<Bson>()) } returns UpdateResult.acknowledged(0, 1, BsonString("aaa"))
     }
 
     private val sessionsCollection = mockk<MongoCollection<Document>> {
@@ -67,7 +82,7 @@ class MongoRepositoryTest {
         assertNotNull(session)
         assertEquals(session.id, "123")
         assertEquals(session.userId, "someUser")
-        assertEquals(session.expiresOn, LocalDateTime.parse("2021-08-01T12:00:15.000"))
+        assertEquals(session.expiresOn, LocalDateTime.parse("2021-08-02T16:34:31.240"))
 
     }
 
@@ -84,9 +99,39 @@ class MongoRepositoryTest {
             sessionsCollection.insertOne(
                 Document("_id", "s1")
                     .append("userId", "u1")
-                    .append("expiresOn", "2021-08-01T12:15:00.000")
+                        // [2021,8,1,12,15,0,0]
+                    .append("expiresOn", "[2021,8,1,12,15,0,0]")
             )
         }
+    }
+
+    @Test
+    fun `gets users bike schedules`() {
+        val schedule = repository.getUsersMaintenanceSchedules("123")
+
+        assertTrue(schedule.isNotEmpty())
+        assertEquals("cbr250", schedule[0].bikeName)
+
+    }
+
+    @Test
+    fun `returns empty list when user does not exist`() {
+        val schedule = repository.getUsersMaintenanceSchedules("noUser")
+        assertTrue(schedule.isEmpty())
+    }
+
+    @Test
+    fun `saves users schedule`() {
+        val scheduleItem = fromJson<BikeSchedule>(this.getResourceFile("schedule-item.json").readText())
+        repository.insertUsersMaintenanceData("123", listOf(scheduleItem))
+        verify(exactly = 1) { usersCollection.updateOne(Document("_id", "123"), any<Bson>()) }
+    }
+
+    @Test
+    fun `throws error if couldnt update`() {
+        val scheduleItem = fromJson<BikeSchedule>(this.getResourceFile("schedule-item.json").readText())
+        assertThrows<IllegalStateException> { repository.insertUsersMaintenanceData("1234", listOf(scheduleItem)) }
+
     }
 
 }

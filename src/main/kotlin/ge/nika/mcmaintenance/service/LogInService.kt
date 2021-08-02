@@ -23,6 +23,10 @@ class LogInService(
         return session
     }
 
+    fun isValidSession(sessionId: String): Boolean {
+        return true
+    }
+
     private fun passwordMatches(request: LogInRequest, user: User) = encryption.matches(request.password, user.password)
 
     private fun createSession(user: User, minutesTillExpires: Int) =

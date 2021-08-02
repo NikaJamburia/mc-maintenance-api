@@ -1,6 +1,8 @@
 package ge.nika.mcmaintenance.web
 
+import ge.nika.mcmaintenance.service.LogInService
 import ge.nika.mcmaintenance.util.toJson
+import ge.nika.mcmaintenance.web.auth.RequireSessionAuth
 import org.http4k.core.*
 import org.http4k.core.HttpHandler
 import org.http4k.filter.CorsPolicy
@@ -10,12 +12,13 @@ import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 
-fun applicationWebEndpoints(): HttpHandler =
+fun applicationWebEndpoints(logInService: LogInService): HttpHandler =
     PrintRequestAndResponse()
+        .then(RequireSessionAuth(logInService))
         .then(Cors(CorsPolicy.UnsafeGlobalPermissive))
-        .then(
-            routes(logIn())
-        )
+        .then(routes(
+            logIn()
+        ))
 
 
 fun logIn(): RoutingHttpHandler =
