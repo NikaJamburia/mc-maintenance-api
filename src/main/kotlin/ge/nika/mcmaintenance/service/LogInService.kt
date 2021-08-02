@@ -5,6 +5,7 @@ import ge.nika.mcmaintenance.persistence.data.User
 import ge.nika.mcmaintenance.persistence.repository.AppRepository
 import ge.nika.mcmaintenance.service.crypto.Encryption
 import ge.nika.mcmaintenance.service.request.LogInRequest
+import org.joda.time.LocalDateTime
 import org.joda.time.LocalDateTime.now
 import java.util.*
 
@@ -18,17 +19,25 @@ class LogInService(
         val user = repository.getUserByUserName(request.userName) ?: error("Wrong username or password")
         check(passwordMatches(request, user)) { "Wrong username or password" }
 
-        val session = createSession(user, sessionActiveForMinutes)
+        val session = createSession(user, request.logInTime, sessionActiveForMinutes)
         repository.saveSession(session)
         return session
     }
 
-    fun isValidSession(sessionId: String): Boolean {
-        return true
-    }
+    fun getSessionIfValid(sessionId: String, checkTime: LocalDateTime): Session? =
+        repository.getSessionById(sessionId)
+            ?. let {
+                if (isValidSession(it, checkTime)) {
+                    it
+                } else {
+                    null
+                }
+            }
+
+    private fun isValidSession(session: Session, checkTime: LocalDateTime): Boolean = !session.expiresOn.isBefore(checkTime)
 
     private fun passwordMatches(request: LogInRequest, user: User) = encryption.matches(request.password, user.password)
 
-    private fun createSession(user: User, minutesTillExpires: Int) =
-        Session(UUID.randomUUID().toString(), user.id, now().plusMinutes(minutesTillExpires))
+    private fun createSession(user: User, onTime: LocalDateTime, minutesTillExpires: Int) =
+        Session(UUID.randomUUID().toString(), user.id, onTime.plusMinutes(minutesTillExpires))
 }

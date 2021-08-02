@@ -1,7 +1,9 @@
-package ge.nika.mcmaintenance.web.auth
+package ge.nika.mcmaintenance.web.filter
 
 import ge.nika.mcmaintenance.service.LogInService
+import ge.nika.mcmaintenance.web.forbidden
 import org.http4k.core.*
+import org.joda.time.LocalDateTime
 
 class RequireSessionAuth(
     private val logInService: LogInService
@@ -10,14 +12,12 @@ class RequireSessionAuth(
         { request: Request ->
             request.header("session-id")
                 ?. let {
-                    if(logInService.isValidSession(it)) {
-                        next(request)
-                    } else {
-                        forbidden()
-                    }
+                    logInService.getSessionIfValid(it, LocalDateTime.now())
+                        ?. let { session ->
+                            next(request.header("user-id", session.userId))
+                        } ?: forbidden()
                 } ?: forbidden()
         }
 
 
-    private fun forbidden() = Response(Status.FORBIDDEN).body("Access forbidden")
 }
