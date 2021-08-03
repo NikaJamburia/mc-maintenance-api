@@ -57,7 +57,7 @@ class MongoRepository(
         val sessionDocument = Document("_id", session.id)
             .append("userId", session.userId)
             .append("expiresOn", toJson(session.expiresOn))
-        sessionsCollection().insertOne(sessionDocument)
+       sessionsCollection().insertOne(sessionDocument)
     }
 
     private fun sessionsCollection() = mongoClient.getDatabase(dbName).getCollection("sessions")

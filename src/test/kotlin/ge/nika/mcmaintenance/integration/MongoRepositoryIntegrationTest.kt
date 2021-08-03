@@ -9,7 +9,7 @@ import org.joda.time.LocalDateTime.now
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.UUID.randomUUID
-import kotlin.test.assertTrue
+import kotlin.test.assertEquals
 
 class MongoRepositoryIntegrationTest {
 
@@ -20,14 +20,19 @@ class MongoRepositoryIntegrationTest {
 
     @BeforeEach
     fun clearDatabase() {
-        println("Before each")
+        println("Clearing database")
         mongoClient.getDatabase(dbName).getCollection("sessions").deleteMany(Document())
         mongoClient.getDatabase(dbName).getCollection("users").deleteMany(Document())
     }
 
     @Test
-    fun aaa() {
-        repository.saveSession(Session(randomUUID().toString(), randomUUID().toString(), now().plusMinutes(15)))
-        assertTrue(true)
+    fun `session is saved and can be retrieved by id`() {
+        val session = Session(randomUUID().toString(), randomUUID().toString(), now().plusMinutes(15))
+        repository.saveSession(session)
+        val sessionFromDb = repository.getSessionById(session.id)!!
+
+        assertEquals(session.id, sessionFromDb.id)
+        assertEquals(session.userId, sessionFromDb.userId)
+        assertEquals(session.expiresOn, sessionFromDb.expiresOn)
     }
 }

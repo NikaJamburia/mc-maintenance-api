@@ -1,7 +1,8 @@
 package ge.nika.mcmaintenance.repository
 
-import com.mongodb.MongoClient
+import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoCollection
+import com.mongodb.client.result.InsertOneResult
 import com.mongodb.client.result.UpdateResult
 import ge.nika.mcmaintenance.getResourceFile
 import ge.nika.mcmaintenance.persistence.data.*
@@ -49,7 +50,7 @@ class MongoRepositoryTest {
     private val sessionsCollection = mockk<MongoCollection<Document>> {
         every { find(Document("_id", "123")).first() } returns sessionDocument
         every { find(Document("_id", "1234")).first() } returns null
-        every { insertOne(any()) } returns Unit
+        every { insertOne(any()) } returns InsertOneResult.acknowledged(BsonString("aaa"))
     }
 
     private val mongoClient = mockk<MongoClient> {
