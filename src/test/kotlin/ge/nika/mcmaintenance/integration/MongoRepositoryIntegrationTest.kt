@@ -1,6 +1,7 @@
 package ge.nika.mcmaintenance.integration
 
-import com.mongodb.MongoClient
+import com.mongodb.client.MongoClient
+import com.mongodb.client.MongoClients
 import ge.nika.mcmaintenance.persistence.data.Session
 import ge.nika.mcmaintenance.persistence.repository.MongoRepository
 import org.bson.Document
@@ -12,9 +13,9 @@ import kotlin.test.assertTrue
 
 class MongoRepositoryIntegrationTest {
 
-    private val dbUrl = "mongodb+srv://bikeApp:BikeApp161@cluster0.h6uoc.mongodb.net/motorcycle_maintenance_schedules?retryWrites=true&w=majority"
+    private val dbUrl = "mongodb+srv://bikeApp:bikeapp123@cluster0.h6uoc.mongodb.net/motorcycle_maintenance_schedules?retryWrites=true&w=majority"
     private val dbName = "motorcycle_maintenance_schedules"
-    private val mongoClient: MongoClient = MongoClient(dbUrl)
+    private val mongoClient: MongoClient = MongoClients.create(dbUrl)
     private val repository = MongoRepository(mongoClient, dbName)
 
     @BeforeEach

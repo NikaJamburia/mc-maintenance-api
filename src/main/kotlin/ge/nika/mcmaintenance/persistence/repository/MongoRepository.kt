@@ -1,6 +1,6 @@
 package ge.nika.mcmaintenance.persistence.repository
 
-import com.mongodb.MongoClient
+import com.mongodb.client.MongoClient
 import ge.nika.mcmaintenance.persistence.data.BikeSchedule
 import ge.nika.mcmaintenance.persistence.data.Session
 import ge.nika.mcmaintenance.persistence.data.User
@@ -9,7 +9,6 @@ import ge.nika.mcmaintenance.util.fromJson
 import ge.nika.mcmaintenance.util.toJson
 import org.bson.BsonArray
 import org.bson.Document
-import org.joda.time.LocalDateTime
 
 class MongoRepository(
     private val mongoClient: MongoClient,
