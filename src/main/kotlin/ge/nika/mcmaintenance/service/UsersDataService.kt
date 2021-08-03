@@ -1,17 +1,17 @@
 package ge.nika.mcmaintenance.service
 
+import ge.nika.mcmaintenance.persistence.data.BikeSchedule
 import ge.nika.mcmaintenance.persistence.repository.AppRepository
 
 class UsersDataService(
     private val repository: AppRepository
 ) {
 
-    fun getUsersDataAsJson(userId: String): String {
-//        return repository.getUsersMaintenanceSchedules(userId) ?: error("Data not found!")
-        return "aaa"
+    fun getUsersMaintenanceSchedule(userId: String): List<BikeSchedule> {
+        return repository.getUsersMaintenanceSchedules(userId)
     }
 
-    fun insertUsersDataJson(userId: String, data: String) {
-//        repository.insertUsersMaintenanceData(userId, data)
+    fun saveUsersMaintenanceSchedule(userId: String, data: List<BikeSchedule>) {
+        repository.insertUsersMaintenanceData(userId, data)
     }
 }
