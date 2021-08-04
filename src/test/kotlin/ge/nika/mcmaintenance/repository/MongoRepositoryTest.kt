@@ -43,8 +43,8 @@ class MongoRepositoryTest {
         every { find(Document("_id", "1234")).first() } returns nikasDocument
         every { find(Document("_id", "noUser")).first() } returns null
         every { find(Document("userName", "beqa")).first() } returns null
-        every { updateOne(Document("_id", "123"), any<Bson>()) } returns UpdateResult.acknowledged(1, 1, BsonString("aaa"))
-        every { updateOne(Document("_id", "1234"), any<Bson>()) } returns UpdateResult.acknowledged(0, 1, BsonString("aaa"))
+        every { replaceOne(Document("_id", "123"), any()) } returns UpdateResult.acknowledged(1, 1, BsonString("aaa"))
+        every { replaceOne(Document("_id", "1234"), any()) } returns UpdateResult.acknowledged(0, 1, BsonString("aaa"))
     }
 
     private val sessionsCollection = mockk<MongoCollection<Document>> {
@@ -125,7 +125,7 @@ class MongoRepositoryTest {
     fun `saves users schedule`() {
         val scheduleItem = fromJson<BikeSchedule>(this.getResourceFile("schedule-item.json").readText())
         repository.insertUsersMaintenanceData("123", listOf(scheduleItem))
-        verify(exactly = 1) { usersCollection.updateOne(Document("_id", "123"), any<Bson>()) }
+        verify(exactly = 1) { usersCollection.replaceOne(Document("_id", "123"), any()) }
     }
 
     @Test

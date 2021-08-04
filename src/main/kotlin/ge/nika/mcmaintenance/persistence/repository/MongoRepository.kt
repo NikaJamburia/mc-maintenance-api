@@ -49,7 +49,7 @@ class MongoRepository(
     override fun insertUsersMaintenanceData(userId: String, data: List<BikeSchedule>) {
         val usersDocument = usersCollection().find(Document("_id", userId)).first() ?: error("User not found")
         usersDocument["bikeSchedules"] = BsonArray.parse(toJson(data))
-        val result = usersCollection().updateOne(Document("_id", userId), usersDocument)
+        val result = usersCollection().replaceOne(Document("_id", userId), usersDocument)
         check(result.matchedCount == 1L) { "Data not found" }
     }
 

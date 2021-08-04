@@ -1,7 +1,7 @@
 package ge.nika.mcmaintenance.service.crypto
 
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
+import java.util.*
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
@@ -9,7 +9,8 @@ class BCryptTest {
 
     @Test
     fun `can hash and match the given text`() {
-        val password = "nika123"
+        println(UUID.randomUUID())
+        val password = "Enterance161@"
         val hashedPassword = BCrypt().getHash(password)
 
         println(hashedPassword)
