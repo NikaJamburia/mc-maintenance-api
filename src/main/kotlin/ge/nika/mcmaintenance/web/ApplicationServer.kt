@@ -19,8 +19,8 @@ import org.joda.time.LocalDateTime.now
 
 fun applicationWebEndpoints(logInService: LogInService, usersDataService: UsersDataService): HttpHandler =
     PrintRequestAndResponse()
-        .then(HandleDomainErrors())
         .then(Cors(CorsPolicy.UnsafeGlobalPermissive))
+        .then(HandleDomainErrors())
         .then(routes(
             logIn(logInService),
             register(logInService),
