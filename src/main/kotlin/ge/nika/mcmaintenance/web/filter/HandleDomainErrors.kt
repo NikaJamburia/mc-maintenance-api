@@ -1,5 +1,7 @@
 package ge.nika.mcmaintenance.web.filter
 
+import ge.nika.mcmaintenance.web.SingleMessageResponse
+import ge.nika.mcmaintenance.web.jsonResponse
 import org.http4k.core.*
 import java.lang.IllegalStateException
 
@@ -9,7 +11,7 @@ class HandleDomainErrors: Filter {
         try {
             next(request)
         } catch (e: IllegalStateException) {
-            Response(Status.BAD_REQUEST).body(e.message ?: "Error occurred")
+            jsonResponse(Status.BAD_REQUEST, SingleMessageResponse(e.message ?: "Error occurred"))
         }
     }
 }

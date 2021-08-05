@@ -2,6 +2,7 @@ package ge.nika.mcmaintenance.web
 
 import ge.nika.mcmaintenance.getResourceFile
 import ge.nika.mcmaintenance.service.UsersDataService
+import ge.nika.mcmaintenance.util.fromJson
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -30,7 +31,7 @@ class SaveMaintenanceScheduleTest {
 
         assertEquals(Status.OK, response.status)
         assertEquals("application/json", response.header("content-type"))
-        assertEquals("""{"message": "schedule saved"}""", response.bodyString())
+        assertEquals(SingleMessageResponse("schedule saved"), fromJson(response.bodyString()))
         verify(exactly = 1) { service.saveUsersMaintenanceSchedule("1", any()) }
     }
 

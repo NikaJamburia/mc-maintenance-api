@@ -57,8 +57,6 @@ fun saveMaintenanceSchedule(usersDataService: UsersDataService): RoutingHttpHand
         val schedule: List<BikeSchedule> = fromJson(request.bodyString())
 
         usersDataService.saveUsersMaintenanceSchedule(userId, schedule)
-        Response(Status.OK)
-            .body("""{"message": "schedule saved"}""")
-            .header("content-type", "application/json")
+        jsonResponse(Status.OK, SingleMessageResponse("schedule saved"))
     }
 

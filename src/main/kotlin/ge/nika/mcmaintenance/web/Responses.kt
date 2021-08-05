@@ -9,5 +9,6 @@ fun jsonResponse(status: Status, data: Any): Response =
         .header("content-type", "application/json")
         .body(toJson(data))
 
-fun forbidden() = Response(Status.FORBIDDEN).body("Access forbidden")
+fun forbidden() = jsonResponse(Status.FORBIDDEN, SingleMessageResponse("Access forbidden"))
 
+data class SingleMessageResponse(val message: String)

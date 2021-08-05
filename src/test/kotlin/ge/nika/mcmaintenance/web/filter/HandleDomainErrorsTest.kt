@@ -1,5 +1,7 @@
 package ge.nika.mcmaintenance.web.filter
 
+import ge.nika.mcmaintenance.util.fromJson
+import ge.nika.mcmaintenance.web.SingleMessageResponse
 import org.http4k.core.*
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -12,7 +14,7 @@ class HandleDomainErrorsTest {
         val response = errorHandlingHttp(Request(Method.GET, ""))
 
         assertEquals(Status.BAD_REQUEST, response.status)
-        assertEquals("Some domain error", response.bodyString())
+        assertEquals(SingleMessageResponse("Some domain error"), fromJson(response.bodyString()))
     }
 
     @Test
