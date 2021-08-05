@@ -3,38 +3,40 @@ package ge.nika.mcmaintenance.service
 import ge.nika.mcmaintenance.persistence.data.Session
 import ge.nika.mcmaintenance.persistence.data.User
 import ge.nika.mcmaintenance.persistence.repository.AppRepository
+import ge.nika.mcmaintenance.service.crypto.BCrypt
 import ge.nika.mcmaintenance.service.crypto.Encryption
-import ge.nika.mcmaintenance.service.request.LogInRequest
+import ge.nika.mcmaintenance.service.request.UserCredentials
 import ge.nika.mcmaintenance.util.dateTime
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.joda.time.LocalDateTime
-import org.joda.time.LocalDateTime.now
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.lang.IllegalStateException
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import java.util.*
+import kotlin.test.*
 
 class LogInServiceTest {
 
     private val repository = mockk<AppRepository> {
         every { getUserByUserName("nika") } returns User("123", "nika", "enctypted pass")
         every { getUserByUserName("beqa") } returns null
+        every { getUserByUserName("new user") } returns null
         every { saveSession(any()) } returns Unit
+        every { saveUser(any()) } returns Unit
     }
 
     private val encryption = mockk<Encryption> {
         every { matches("valid pass", any()) } returns true
         every { matches("invalid pass", any()) } returns false
+        every { getHash(any()) } answers { firstArg() as String + " hashed" }
     }
 
     @Test
     fun `correctly creates and saves users session when everything is correct`() {
         val service = LogInService(repository, encryption, 15)
-        val session = service.logIn(LogInRequest("nika", "valid pass", dateTime("2021-08-02T12:00:00")))
+        val session = service.logIn(UserCredentials("nika", "valid pass"), dateTime("2021-08-02T12:00:00"))
 
         assertEquals("123", session.userId)
         assertEquals(dateTime("2021-08-02T12:15:00"), session.expiresOn)
@@ -44,7 +46,7 @@ class LogInServiceTest {
     @Test
     fun `throws error when user is not found`() {
         val service = LogInService(repository, encryption, 15)
-        val exception = assertThrows<IllegalStateException> { service.logIn(LogInRequest("beqa", "valid pass", dateTime("2021-08-02T11:46:12.000"))) }
+        val exception = assertThrows<IllegalStateException> { service.logIn(UserCredentials("beqa", "valid pass"), dateTime("2021-08-02T11:46:12.000")) }
         assertEquals("Wrong username or password", exception.message)
         verify(exactly = 0) { repository.saveSession(any()) }
     }
@@ -52,7 +54,7 @@ class LogInServiceTest {
     @Test
     fun `throws error when password is incorrect`() {
         val service = LogInService(repository, encryption, 15)
-        val exception = assertThrows<IllegalStateException> { service.logIn(LogInRequest("nika", "invalid pass", dateTime("2021-08-02T11:46:12.000"))) }
+        val exception = assertThrows<IllegalStateException> { service.logIn(UserCredentials("nika", "invalid pass"), dateTime("2021-08-02T11:46:12.000")) }
         assertEquals("Wrong username or password", exception.message)
         verify(exactly = 0) { repository.saveSession(any()) }
     }
@@ -105,5 +107,37 @@ class LogInServiceTest {
 
         val service = LogInService(repository, encryption, 15)
         assertNotNull(service.getSessionIfValid(sessionId, checkTime))
+    }
+
+    @Test
+    fun `hashes users password and saves him to repository`() {
+        val service = LogInService(repository, encryption, 15)
+
+        val registeredUser = service.register(UserCredentials("new user", "new pass"))
+
+        assertDoesNotThrow { UUID.fromString(registeredUser.id) }
+        assertEquals("new user", registeredUser.userName)
+        assertEquals("new pass hashed", registeredUser.password)
+        verify(exactly = 1) { repository.getUserByUserName("new user") }
+    }
+
+    @Test
+    fun `throws exception if username already exists`() {
+        val service = LogInService(repository, encryption, 15)
+
+        val exception = assertThrows<IllegalStateException> { service.register(UserCredentials("nika", "new pass")) }
+        assertEquals("Username already exists!", exception.message)
+
+    }
+
+    @Test
+    fun `can correctly hash password with bcrypt`() {
+        val service = LogInService(repository, BCrypt(), 15)
+
+        val password = "new pass"
+        val registeredUser = service.register(UserCredentials("new user", password))
+
+        assertNotEquals(password, registeredUser.password)
+        assertTrue(BCrypt().matches(password, registeredUser.password))
     }
 }

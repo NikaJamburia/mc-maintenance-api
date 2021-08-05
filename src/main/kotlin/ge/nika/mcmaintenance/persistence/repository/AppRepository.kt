@@ -10,4 +10,5 @@ interface AppRepository {
     fun getUsersMaintenanceSchedules(userId: String): List<BikeSchedule>
     fun insertUsersMaintenanceData(userId: String, data: List<BikeSchedule>)
     fun saveSession(session: Session)
+    fun saveUser(user: User)
 }

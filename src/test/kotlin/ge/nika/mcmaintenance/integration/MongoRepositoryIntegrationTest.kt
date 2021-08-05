@@ -73,6 +73,17 @@ class MongoRepositoryIntegrationTest {
         assertThrows<IllegalStateException> { repository.insertUsersMaintenanceData("123", listOf()) }
     }
 
+    @Test
+    fun `can save user`() {
+        val newUser = User("123", "nikanika", "passsss")
+        repository.saveUser(newUser)
+
+        val userFromDb = repository.getUserByUserName("nikanika")
+        assertEquals(newUser, userFromDb)
+        assertTrue(repository.getUsersMaintenanceSchedules("123").isEmpty())
+    }
+
+
     private fun insertUser(userName: String, id: String) {
         mongoClient.getDatabase(dbName).getCollection("users").insertOne(
             Document("_id", id)

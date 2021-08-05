@@ -5,7 +5,7 @@ import org.joda.time.LocalDate
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UsersScheduleData(
-    val bikeSchedules: List<BikeSchedule>
+    val bikeSchedules: List<BikeSchedule>?
 )
 
 data class BikeSchedule(

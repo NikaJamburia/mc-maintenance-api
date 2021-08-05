@@ -3,7 +3,7 @@ package ge.nika.mcmaintenance.web
 import ge.nika.mcmaintenance.persistence.data.BikeSchedule
 import ge.nika.mcmaintenance.service.LogInService
 import ge.nika.mcmaintenance.service.UsersDataService
-import ge.nika.mcmaintenance.service.request.LogInRequest
+import ge.nika.mcmaintenance.service.request.UserCredentials
 import ge.nika.mcmaintenance.util.fromJson
 import ge.nika.mcmaintenance.web.filter.HandleDomainErrors
 import ge.nika.mcmaintenance.web.filter.RequireSessionAuth
@@ -14,8 +14,8 @@ import org.http4k.filter.DebuggingFilters.PrintRequestAndResponse
 import org.http4k.filter.ServerFilters.Cors
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
-import org.http4k.routing.body
 import org.http4k.routing.routes
+import org.joda.time.LocalDateTime.now
 
 fun applicationWebEndpoints(logInService: LogInService, usersDataService: UsersDataService): HttpHandler =
     PrintRequestAndResponse()
@@ -23,6 +23,7 @@ fun applicationWebEndpoints(logInService: LogInService, usersDataService: UsersD
         .then(Cors(CorsPolicy.UnsafeGlobalPermissive))
         .then(routes(
             logIn(logInService),
+            register(logInService),
             RequireSessionAuth(logInService).then(getMaintenanceSchedule(usersDataService)),
             RequireSessionAuth(logInService).then(saveMaintenanceSchedule(usersDataService))
         ))
@@ -30,10 +31,17 @@ fun applicationWebEndpoints(logInService: LogInService, usersDataService: UsersD
 
 fun logIn(logInService: LogInService): RoutingHttpHandler =
     "/login" bind Method.POST to { request: Request ->
-        val logInRequest: LogInRequest = fromJson(request.bodyString())
+        val userCredentials: UserCredentials = fromJson(request.bodyString())
 
-        val session = logInService.logIn(logInRequest)
+        val session = logInService.logIn(userCredentials, now())
         jsonResponse(Status.OK, session)
+    }
+
+fun register(logInService: LogInService): RoutingHttpHandler =
+    "/register" bind Method.POST to { request: Request ->
+        val userCredentials: UserCredentials = fromJson(request.bodyString())
+        val user = logInService.register(userCredentials)
+        jsonResponse(Status.OK, user)
     }
 
 fun getMaintenanceSchedule(usersDataService: UsersDataService): RoutingHttpHandler =

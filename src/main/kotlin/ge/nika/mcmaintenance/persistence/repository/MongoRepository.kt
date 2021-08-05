@@ -41,7 +41,7 @@ class MongoRepository(
             .first()
 
         return userDocument
-            ?.let {  fromJson<UsersScheduleData>(it.toJson()).bikeSchedules }
+            ?.let {  fromJson<UsersScheduleData>(it.toJson()).bikeSchedules ?: listOf() }
             ?: listOf()
     }
 
@@ -58,6 +58,13 @@ class MongoRepository(
             .append("userId", session.userId)
             .append("expiresOn", toJson(session.expiresOn))
        sessionsCollection().insertOne(sessionDocument)
+    }
+
+    override fun saveUser(user: User) {
+        usersCollection().insertOne(Document("_id", user.id)
+            .append("userName", user.userName)
+            .append("password", user.password))
+
     }
 
     private fun sessionsCollection() = mongoClient.getDatabase(dbName).getCollection("sessions")

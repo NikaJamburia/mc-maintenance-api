@@ -33,6 +33,10 @@ class MongoRepositoryTest {
         .append("password", "pass123")
         .append("bikeSchedules", BsonArray.parse(this.getResourceFile("schedule.json").readText()))
 
+    private val noScheduleUser = Document("_id", "no schedule")
+        .append("userName", "aaaaa")
+        .append("password", "pass123")
+
     private val sessionDocument = Document("_id", "123")
         .append("userId", "someUser")
         .append("expiresOn", "[2021,8,2,16,34,31,240]")
@@ -45,6 +49,8 @@ class MongoRepositoryTest {
         every { find(Document("userName", "beqa")).first() } returns null
         every { replaceOne(Document("_id", "123"), any()) } returns UpdateResult.acknowledged(1, 1, BsonString("aaa"))
         every { replaceOne(Document("_id", "1234"), any()) } returns UpdateResult.acknowledged(0, 1, BsonString("aaa"))
+        every { insertOne(any()) } returns InsertOneResult.acknowledged(BsonString("aaa"))
+        every { find(Document("_id", "no schedule")).first() } returns noScheduleUser
     }
 
     private val sessionsCollection = mockk<MongoCollection<Document>> {
@@ -132,7 +138,23 @@ class MongoRepositoryTest {
     fun `throws error if couldnt update`() {
         val scheduleItem = fromJson<BikeSchedule>(this.getResourceFile("schedule-item.json").readText())
         assertThrows<IllegalStateException> { repository.insertUsersMaintenanceData("1234", listOf(scheduleItem)) }
+    }
 
+    @Test
+    fun `saves user`() {
+        val user = User("userId", "userName", "pass")
+
+        repository.saveUser(user)
+        verify(exactly = 1) { usersCollection.insertOne(
+            Document("_id", user.id)
+                .append("userName", user.userName)
+                .append("password", user.password)
+        ) }
+    }
+
+    @Test
+    fun `returns empty list if user has no schedule`() {
+        assertTrue(repository.getUsersMaintenanceSchedules("no schedule").isEmpty())
     }
 
 }
