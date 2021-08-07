@@ -1,5 +1,6 @@
 package ge.nika.mcmaintenance.web.filter
 
+import ge.nika.mcmaintenance.persistence.data.Session
 import ge.nika.mcmaintenance.service.LogInService
 import ge.nika.mcmaintenance.web.forbidden
 import org.http4k.core.*
@@ -12,12 +13,17 @@ class RequireSessionAuth(
         { request: Request ->
             request.header("session-id")
                 ?. let {
-                    logInService.getSessionIfValid(it, LocalDateTime.now())
+                    logInService.getSession(it)
                         ?. let { session ->
-                            next(request.header("user-id", session.userId))
-                        } ?: forbidden()
-                } ?: forbidden()
+                            if(isValidSession(session, LocalDateTime.now())) {
+                                next(request.header("user-id", session.userId))
+                            } else {
+                                forbidden("Session Expired")
+                            }
+                        } ?: forbidden("No Session found")
+                } ?: forbidden("Access forbidden")
         }
 
+    private fun isValidSession(session: Session, checkTime: LocalDateTime): Boolean = !session.expiresOn.isBefore(checkTime)
 
 }

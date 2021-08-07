@@ -23,15 +23,7 @@ class LogInService(
         return session
     }
 
-    fun getSessionIfValid(sessionId: String, checkTime: LocalDateTime): Session? =
-        repository.getSessionById(sessionId)
-            ?. let {
-                if (isValidSession(it, checkTime)) {
-                    it
-                } else {
-                    null
-                }
-            }
+    fun getSession(sessionId: String): Session? = repository.getSessionById(sessionId)
 
     fun register(userCredentials: UserCredentials): User {
         val user = repository.getUserByUserName(userCredentials.userName)
@@ -45,8 +37,6 @@ class LogInService(
                 return user
             }
     }
-
-    private fun isValidSession(session: Session, checkTime: LocalDateTime): Boolean = !session.expiresOn.isBefore(checkTime)
 
     private fun passwordMatches(request: UserCredentials, user: User) = encryption.matches(request.password, user.password)
 

@@ -68,7 +68,7 @@ class LogInServiceTest {
         }
 
         val service = LogInService(repository, encryption, 15)
-        val session = service.getSessionIfValid(sessionId, checkTime)
+        val session = service.getSession(sessionId)
 
         assertNotNull(session)
         assertEquals(sessionId, session.id)
@@ -82,31 +82,7 @@ class LogInServiceTest {
         }
 
         val service = LogInService(repository, encryption, 15)
-        assertNull(service.getSessionIfValid("no session", dateTime("2021-08-02T11:46:12.000")))
-    }
-
-    @Test
-    fun `returns null if session is expired`() {
-        val checkTime = dateTime("2021-08-02T11:46:12.000")
-        val sessionId = "expired session"
-        val repository = mockk<AppRepository> {
-            every { getSessionById(sessionId) } returns Session(sessionId, "nika", checkTime.minusMillis(1))
-        }
-
-        val service = LogInService(repository, encryption, 15)
-        assertNull(service.getSessionIfValid(sessionId, checkTime))
-    }
-
-    @Test
-    fun `returns non expired session`() {
-        val checkTime = dateTime("2021-08-02T11:46:12.000")
-        val sessionId = "session"
-        val repository = mockk<AppRepository> {
-            every { getSessionById(sessionId) } returns Session(sessionId, "nika", checkTime.plusMillis(1))
-        }
-
-        val service = LogInService(repository, encryption, 15)
-        assertNotNull(service.getSessionIfValid(sessionId, checkTime))
+        assertNull(service.getSession("no session"))
     }
 
     @Test
