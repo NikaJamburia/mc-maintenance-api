@@ -9,8 +9,10 @@ import ge.nika.mcmaintenance.web.filter.HandleDomainErrors
 import ge.nika.mcmaintenance.web.filter.RequireSessionAuth
 import org.http4k.core.*
 import org.http4k.core.HttpHandler
+import org.http4k.filter.AllowAll
 import org.http4k.filter.CorsPolicy
 import org.http4k.filter.DebuggingFilters.PrintRequestAndResponse
+import org.http4k.filter.OriginPolicy
 import org.http4k.filter.ServerFilters.Cors
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
@@ -19,7 +21,7 @@ import org.joda.time.LocalDateTime.now
 
 fun applicationWebEndpoints(logInService: LogInService, usersDataService: UsersDataService): HttpHandler =
     PrintRequestAndResponse()
-        .then(Cors(CorsPolicy.UnsafeGlobalPermissive))
+        .then(Cors(CorsPolicy(OriginPolicy.AllowAll(), listOf("content-type", "session-id"), Method.values().toList(), true)))
         .then(HandleDomainErrors())
         .then(routes(
             logIn(logInService),
