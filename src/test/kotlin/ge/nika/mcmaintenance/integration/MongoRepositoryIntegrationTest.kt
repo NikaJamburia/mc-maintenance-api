@@ -57,7 +57,7 @@ class MongoRepositoryIntegrationTest {
         insertUser("vigaca", "123")
 
         val schedule = listOf(
-            BikeSchedule("cb1100", miles(1000), "smth.png", listOf(
+            BikeSchedule("cb1100", miles(1000), "chopper.png", listOf(
                 ScheduleItem("oil change", miles(3000), listOf())
             ))
         )

@@ -26,9 +26,9 @@ class LogInService(
     fun getSession(sessionId: String): Session? = repository.getSessionById(sessionId)
 
     fun register(userCredentials: UserCredentials): User {
-        val user = repository.getUserByUserName(userCredentials.userName)
+        val existingUser = repository.getUserByUserName(userCredentials.userName)
 
-        user
+        existingUser
             ?. let { error("Username already exists!") }
             ?: let {
                 val hashedPass = encryption.getHash(userCredentials.password)
