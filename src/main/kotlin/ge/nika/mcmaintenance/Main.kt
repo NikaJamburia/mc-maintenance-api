@@ -13,10 +13,13 @@ import java.util.*
 fun main() {
 
     val properties = loadProperties("application.properties")
-    val applicationPort = properties.getProperty("app.port").toInt()
+    val applicationPort = "PORT".fromEnv()?.toInt() ?: properties.getProperty("app.port").toInt()
+    val connectionString = "DB_CONNECTION_STR".fromEnv() ?: properties.getProperty("db.connection-string")
+    val dbName = "DB_NAME".fromEnv() ?:  properties.getProperty("db.name")
 
-    val mongoClient = MongoClients.create(properties.getProperty("db.connection-string"))
-    val repository = MongoRepository(mongoClient, properties.getProperty("db.name"))
+    val mongoClient = MongoClients.create(connectionString)
+    val repository = MongoRepository(mongoClient, dbName)
+
     val logInService = LogInService(repository, BCrypt(), properties.getProperty("app.session-valid-for-minutes").toInt())
     val usersDataService = UsersDataService(repository)
 
@@ -31,3 +34,5 @@ fun loadProperties(fileName: String): Properties {
     props.load(object {}::class.java.classLoader.getResource(fileName)!!.openStream())
     return props
 }
+
+private fun String.fromEnv(): String? = System.getenv(this)

@@ -1,10 +1,13 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.5.21'
+    id "com.github.johnrengelman.shadow" version "6.0.0"
     id 'application'
 }
 
 group 'ge.nika'
 version '1.0-SNAPSHOT'
+
+project.setProperty("mainClassName", "ge.nika.mcmaintenance.MainKt")
 
 repositories {
     mavenCentral()
@@ -51,12 +54,6 @@ compileTestKotlin {
 jar {
     manifest {
         attributes 'Main-Class': 'ge.nika.mcmaintenance.MainKt'
-    }
-
-    from {
-        exclude '**/module-info.class'
-        exclude 'META-INF/**'
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 
