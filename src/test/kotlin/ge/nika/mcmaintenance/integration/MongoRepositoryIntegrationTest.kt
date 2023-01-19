@@ -2,11 +2,13 @@ package ge.nika.mcmaintenance.integration
 
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
-import ge.nika.mcmaintenance.getResourceFile
+import ge.nika.mcmaintenance.fixtures.fakeBikeSchedule
+import ge.nika.mcmaintenance.fixtures.fakeScheduleItem
+import ge.nika.mcmaintenance.fixtures.getResourceFile
 import ge.nika.mcmaintenance.persistence.data.*
 import ge.nika.mcmaintenance.persistence.repository.MongoRepository
 import org.bson.Document
-import org.joda.time.LocalDateTime.now
+import java.time.LocalDateTime.now
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -57,9 +59,7 @@ class MongoRepositoryIntegrationTest {
         insertUser("vigaca", "123")
 
         val schedule = listOf(
-            BikeSchedule("cb1100", miles(1000), "chopper.png", listOf(
-                ScheduleItem("oil change", miles(3000), listOf())
-            ))
+            fakeBikeSchedule(scheduleItems = listOf(fakeScheduleItem()))
         )
         repository.insertUsersMaintenanceData("123", schedule)
         val scheduleFromDb = repository.getUsersMaintenanceSchedules("123")

@@ -5,7 +5,7 @@ import ge.nika.mcmaintenance.persistence.data.User
 import ge.nika.mcmaintenance.persistence.repository.AppRepository
 import ge.nika.mcmaintenance.service.crypto.Encryption
 import ge.nika.mcmaintenance.service.request.UserCredentials
-import org.joda.time.LocalDateTime
+import java.time.LocalDateTime
 import java.util.*
 
 class LogInService(
@@ -41,5 +41,5 @@ class LogInService(
     private fun passwordMatches(request: UserCredentials, user: User) = encryption.matches(request.password, user.password)
 
     private fun createSession(user: User, onTime: LocalDateTime, minutesTillExpires: Int) =
-        Session(UUID.randomUUID().toString(), user.id, onTime.plusMinutes(minutesTillExpires))
+        Session(UUID.randomUUID().toString(), user.id, onTime.plusMinutes(minutesTillExpires.toLong()))
 }

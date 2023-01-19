@@ -1,6 +1,8 @@
 package ge.nika.mcmaintenance.service
 
-import ge.nika.mcmaintenance.persistence.data.BikeSchedule
+import ge.nika.mcmaintenance.core.BikeSchedule
+import ge.nika.mcmaintenance.core.DistanceUnit
+import ge.nika.mcmaintenance.core.convertTo
 import ge.nika.mcmaintenance.persistence.repository.AppRepository
 
 class UsersDataService(
@@ -13,5 +15,9 @@ class UsersDataService(
 
     fun saveUsersMaintenanceSchedule(userId: String, data: List<BikeSchedule>) {
         repository.insertUsersMaintenanceData(userId, data)
+    }
+
+    fun convertDistances(bikeSchedule: BikeSchedule, newDistanceUnit: DistanceUnit): BikeSchedule {
+        return bikeSchedule.convertTo(newDistanceUnit)
     }
 }

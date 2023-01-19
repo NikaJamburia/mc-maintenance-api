@@ -1,7 +1,7 @@
 package ge.nika.mcmaintenance.persistence.repository
 
 import com.mongodb.client.MongoClient
-import ge.nika.mcmaintenance.persistence.data.BikeSchedule
+import ge.nika.mcmaintenance.core.BikeSchedule
 import ge.nika.mcmaintenance.persistence.data.Session
 import ge.nika.mcmaintenance.persistence.data.User
 import ge.nika.mcmaintenance.persistence.data.UsersScheduleData

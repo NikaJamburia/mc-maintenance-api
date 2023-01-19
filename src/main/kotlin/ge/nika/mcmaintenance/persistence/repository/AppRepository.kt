@@ -1,6 +1,6 @@
 package ge.nika.mcmaintenance.persistence.repository
 
-import ge.nika.mcmaintenance.persistence.data.BikeSchedule
+import ge.nika.mcmaintenance.core.BikeSchedule
 import ge.nika.mcmaintenance.persistence.data.Session
 import ge.nika.mcmaintenance.persistence.data.User
 

@@ -1,8 +1,9 @@
 package ge.nika.mcmaintenance.web
 
-import ge.nika.mcmaintenance.persistence.data.BikeSchedule
+import ge.nika.mcmaintenance.core.BikeSchedule
 import ge.nika.mcmaintenance.service.LogInService
 import ge.nika.mcmaintenance.service.UsersDataService
+import ge.nika.mcmaintenance.service.request.ConvertDistanceRequest
 import ge.nika.mcmaintenance.service.request.UserCredentials
 import ge.nika.mcmaintenance.util.fromJson
 import ge.nika.mcmaintenance.web.filter.HandleDomainErrors
@@ -17,7 +18,7 @@ import org.http4k.filter.ServerFilters.Cors
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
-import org.joda.time.LocalDateTime.now
+import java.time.LocalDateTime.now
 
 fun applicationWebEndpoints(logInService: LogInService, usersDataService: UsersDataService): HttpHandler =
     PrintRequestAndResponse()
@@ -27,7 +28,8 @@ fun applicationWebEndpoints(logInService: LogInService, usersDataService: UsersD
             logIn(logInService),
             register(logInService),
             RequireSessionAuth(logInService).then(getMaintenanceSchedule(usersDataService)),
-            RequireSessionAuth(logInService).then(saveMaintenanceSchedule(usersDataService))
+            RequireSessionAuth(logInService).then(saveMaintenanceSchedule(usersDataService)),
+            RequireSessionAuth(logInService).then(convertDistance(usersDataService)),
         ))
 
 
@@ -60,5 +62,14 @@ fun saveMaintenanceSchedule(usersDataService: UsersDataService): RoutingHttpHand
 
         usersDataService.saveUsersMaintenanceSchedule(userId, schedule)
         jsonResponse(Status.OK, SingleMessageResponse("schedule saved"))
+    }
+
+fun convertDistance(usersDataService: UsersDataService): RoutingHttpHandler =
+    "/convert-distance" bind Method.POST to { request: Request ->
+        val userId = request.header("user-id") ?: error("User not authorised")
+        val request: ConvertDistanceRequest = fromJson(request.bodyString())
+
+        val converted = usersDataService.convertDistances(request.schedule, request.newUnit)
+        jsonResponse(Status.OK, converted)
     }
 

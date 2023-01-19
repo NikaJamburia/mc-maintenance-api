@@ -1,7 +1,7 @@
 package ge.nika.mcmaintenance.web
 
-import ge.nika.mcmaintenance.getResourceFile
-import ge.nika.mcmaintenance.persistence.data.BikeSchedule
+import ge.nika.mcmaintenance.core.BikeSchedule
+import ge.nika.mcmaintenance.fixtures.getResourceFile
 import ge.nika.mcmaintenance.service.UsersDataService
 import ge.nika.mcmaintenance.util.fromJson
 import io.mockk.every

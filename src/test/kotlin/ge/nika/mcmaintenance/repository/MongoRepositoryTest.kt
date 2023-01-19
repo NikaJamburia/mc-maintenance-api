@@ -4,7 +4,8 @@ import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.result.InsertOneResult
 import com.mongodb.client.result.UpdateResult
-import ge.nika.mcmaintenance.getResourceFile
+import ge.nika.mcmaintenance.core.BikeSchedule
+import ge.nika.mcmaintenance.fixtures.getResourceFile
 import ge.nika.mcmaintenance.persistence.data.*
 import ge.nika.mcmaintenance.persistence.repository.MongoRepository
 import ge.nika.mcmaintenance.util.fromJson
@@ -14,8 +15,7 @@ import io.mockk.verify
 import org.bson.BsonArray
 import org.bson.BsonString
 import org.bson.Document
-import org.bson.conversions.Bson
-import org.joda.time.LocalDateTime
+import java.time.LocalDateTime
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.lang.IllegalStateException
@@ -89,7 +89,7 @@ class MongoRepositoryTest {
         assertNotNull(session)
         assertEquals(session.id, "123")
         assertEquals(session.userId, "someUser")
-        assertEquals(session.expiresOn, LocalDateTime.parse("2021-08-02T16:34:31.240"))
+        assertEquals(session.expiresOn, LocalDateTime.parse("2021-08-02T16:34:31.000000240"))
 
     }
 
@@ -106,8 +106,7 @@ class MongoRepositoryTest {
             sessionsCollection.insertOne(
                 Document("_id", "s1")
                     .append("userId", "u1")
-                        // [2021,8,1,12,15,0,0]
-                    .append("expiresOn", "[2021,8,1,12,15,0,0]")
+                    .append("expiresOn", "[2021,8,1,12,15]")
             )
         }
     }

@@ -4,7 +4,7 @@ import ge.nika.mcmaintenance.persistence.data.Session
 import ge.nika.mcmaintenance.service.LogInService
 import ge.nika.mcmaintenance.web.forbidden
 import org.http4k.core.*
-import org.joda.time.LocalDateTime
+import java.time.LocalDateTime
 
 class RequireSessionAuth(
     private val logInService: LogInService

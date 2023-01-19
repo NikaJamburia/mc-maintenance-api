@@ -1,31 +1,36 @@
 [
   {
     "bikeName": "cbr250",
-    "lastOdometerReading": {
-      "value": 10000,
-      "unit": "MILES"
-    },
+    "lastOdometerReading": 10000,
+    "odometerUnits": "MILES",
     "bikeImage": "sport-bike.png",
     "schedule": [
       {
         "name": "oil change",
-        "interval": {
-          "value": 3000,
-          "unit": "MILES"
-        },
+        "intervalType": "DISTANCE",
+        "interval": 3000,
         "entries": [
           {
-            "odometerReading": {
-              "value": 7000,
-              "unit": "MILES"
-            },
+            "odometerReading": 7000,
             "entryDate": [
               2021,
               8,
               2
             ]
           }
-        ]
+        ],
+        "entriesSorted": [
+          {
+            "odometerReading": 7000,
+            "entryDate": [
+              2021,
+              8,
+              2
+            ]
+          }
+        ],
+        "nextServiceDate": null,
+        "nextServiceMileage": 10000
       }
     ]
   }

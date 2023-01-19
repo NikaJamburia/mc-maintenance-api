@@ -1,6 +1,6 @@
 package ge.nika.mcmaintenance.web
 
-import ge.nika.mcmaintenance.getResourceFile
+import ge.nika.mcmaintenance.fixtures.getResourceFile
 import ge.nika.mcmaintenance.service.UsersDataService
 import ge.nika.mcmaintenance.util.fromJson
 import io.mockk.every
@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.lang.IllegalStateException
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class SaveMaintenanceScheduleTest {
 

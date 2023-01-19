@@ -1,4 +1,4 @@
-package ge.nika.mcmaintenance
+package ge.nika.mcmaintenance.fixtures
 
 import java.net.URL
 
