@@ -1,8 +1,13 @@
 version: "3"
 
 services:
+  front:
+    image: nikajamburia/mc-maintenance-front
+    ports:
+      - "80:4200"
+
   api:
-    build: .
+    image: nikajamburia/mc-maintenance-api
     ports:
       - "8080:8000"
     environment:
@@ -17,6 +22,19 @@ services:
     volumes:
       - db_vol:/data/db
     command: mongod --port 27015 --bind_ip 0.0.0.0
+
+  mongoexpress:
+    depends_on:
+      - database
+    image: mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_PORT: 27015
+      ME_CONFIG_MONGODB_SERVER: database
+      ME_CONFIG_BASICAUTH_USERNAME: nika
+      ME_CONFIG_BASICAUTH_PASSWORD: nika
+
 
 volumes:
   db_vol:
