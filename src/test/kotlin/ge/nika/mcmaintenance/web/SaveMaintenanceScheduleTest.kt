@@ -1,7 +1,12 @@
 package ge.nika.mcmaintenance.web
 
+import ge.nika.mcmaintenance.core.BikeSchedule
+import ge.nika.mcmaintenance.core.BikeScheduleDto
+import ge.nika.mcmaintenance.core.toDto
+import ge.nika.mcmaintenance.fixtures.fakeBikeSchedule
 import ge.nika.mcmaintenance.fixtures.getResourceFile
-import ge.nika.mcmaintenance.service.UsersDataService
+import ge.nika.mcmaintenance.service.MaintenanceScheduleService
+import ge.nika.mcmaintenance.util.asJson
 import ge.nika.mcmaintenance.util.fromJson
 import io.mockk.every
 import io.mockk.mockk
@@ -16,21 +21,22 @@ import kotlin.test.assertEquals
 
 class SaveMaintenanceScheduleTest {
 
-    private val service = mockk<UsersDataService> {
-        every { saveUsersMaintenanceSchedule(any(), any()) } returns Unit
+    private val service = mockk<MaintenanceScheduleService> {
+        every { saveUsersMaintenanceSchedule(any(), any()) } answers { it.invocation.args[1] as List<BikeScheduleDto> }
     }
 
     @Test
     fun `returns ok response and saves the schedule`() {
+        val schedule = listOf(fakeBikeSchedule().toDto())
         val response = saveMaintenanceSchedule(service)(
             Request(Method.POST, "/maintenance-schedule")
                 .header("user-id", "1")
-                .body(this.getResourceFile("schedule.json").readText())
+                .body(schedule.asJson())
         )
 
         assertEquals(Status.OK, response.status)
         assertEquals("application/json", response.header("content-type"))
-        assertEquals(SingleMessageResponse("schedule saved"), fromJson(response.bodyString()))
+        assertEquals(schedule, fromJson(response.bodyString()))
         verify(exactly = 1) { service.saveUsersMaintenanceSchedule("1", any()) }
     }
 

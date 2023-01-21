@@ -5,9 +5,12 @@ import com.mongodb.client.MongoCollection
 import com.mongodb.client.result.InsertOneResult
 import com.mongodb.client.result.UpdateResult
 import ge.nika.mcmaintenance.core.BikeSchedule
+import ge.nika.mcmaintenance.core.toDto
+import ge.nika.mcmaintenance.fixtures.fakeBikeSchedule
 import ge.nika.mcmaintenance.fixtures.getResourceFile
 import ge.nika.mcmaintenance.persistence.data.*
 import ge.nika.mcmaintenance.persistence.repository.MongoRepository
+import ge.nika.mcmaintenance.util.asJson
 import ge.nika.mcmaintenance.util.fromJson
 import io.mockk.every
 import io.mockk.mockk
@@ -31,7 +34,7 @@ class MongoRepositoryTest {
     private val nikasDocument = Document("_id", "123")
         .append("userName", "nika")
         .append("password", "pass123")
-        .append("bikeSchedules", BsonArray.parse(this.getResourceFile("schedule.json").readText()))
+        .append("bikeSchedules", BsonArray.parse(listOf(fakeBikeSchedule().toDto()).asJson()))
 
     private val noScheduleUser = Document("_id", "no schedule")
         .append("userName", "aaaaa")
@@ -116,7 +119,7 @@ class MongoRepositoryTest {
         val schedule = repository.getUsersMaintenanceSchedules("123")
 
         assertTrue(schedule.isNotEmpty())
-        assertEquals("cbr250", schedule[0].bikeName)
+        assertEquals("Honda", schedule[0].bikeName)
 
     }
 

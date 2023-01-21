@@ -13,8 +13,9 @@ class UsersDataService(
         return repository.getUsersMaintenanceSchedules(userId)
     }
 
-    fun saveUsersMaintenanceSchedule(userId: String, data: List<BikeSchedule>) {
+    fun saveUsersMaintenanceSchedule(userId: String, data: List<BikeSchedule>): List<BikeSchedule> {
         repository.insertUsersMaintenanceData(userId, data)
+        return data
     }
 
     fun convertDistances(bikeSchedule: BikeSchedule, newDistanceUnit: DistanceUnit): BikeSchedule {

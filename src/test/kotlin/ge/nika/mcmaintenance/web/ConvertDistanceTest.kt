@@ -1,11 +1,11 @@
 package ge.nika.mcmaintenance.web
 
 import ge.nika.mcmaintenance.core.BikeSchedule
-import ge.nika.mcmaintenance.core.DistanceUnit
 import ge.nika.mcmaintenance.core.DistanceUnit.MILES
 import ge.nika.mcmaintenance.core.convertTo
+import ge.nika.mcmaintenance.core.toDto
 import ge.nika.mcmaintenance.fixtures.fakeBikeSchedule
-import ge.nika.mcmaintenance.service.UsersDataService
+import ge.nika.mcmaintenance.service.MaintenanceScheduleService
 import ge.nika.mcmaintenance.service.request.ConvertDistanceRequest
 import ge.nika.mcmaintenance.util.fromJson
 import ge.nika.mcmaintenance.util.toJson
@@ -23,16 +23,17 @@ class ConvertDistanceTest {
     fun `returns json of the schedule`() {
 
         val schedule = fakeBikeSchedule()
+        val scheduleDto = schedule.toDto()
 
-        val service: UsersDataService = mockk {
-            every { convertDistances(schedule, MILES) } returns schedule.convertTo(MILES)
+        val service: MaintenanceScheduleService = mockk {
+            every { convertDistances("1", scheduleDto, MILES) } returns schedule.convertTo(MILES).toDto()
         }
 
         val response = convertDistance(service)(
             Request(Method.POST, "/convert-distance")
                 .header("user-id", "1")
                 .body(toJson(ConvertDistanceRequest(
-                    schedule = schedule,
+                    schedule = scheduleDto,
                     newUnit = MILES
                 )))
         )

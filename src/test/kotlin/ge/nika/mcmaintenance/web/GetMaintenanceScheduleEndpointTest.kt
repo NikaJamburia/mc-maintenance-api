@@ -1,8 +1,9 @@
 package ge.nika.mcmaintenance.web
 
-import ge.nika.mcmaintenance.core.BikeSchedule
+import ge.nika.mcmaintenance.core.toDto
+import ge.nika.mcmaintenance.fixtures.fakeBikeSchedule
 import ge.nika.mcmaintenance.fixtures.getResourceFile
-import ge.nika.mcmaintenance.service.UsersDataService
+import ge.nika.mcmaintenance.service.MaintenanceScheduleService
 import ge.nika.mcmaintenance.util.fromJson
 import io.mockk.every
 import io.mockk.mockk
@@ -20,9 +21,9 @@ class GetMaintenanceScheduleEndpointTest {
     @Test
     fun `returns json of the schedule`() {
 
-        val schedule = fromJson<List<BikeSchedule>>(this.getResourceFile("schedule.json").readText())
+        val schedule = listOf(fakeBikeSchedule().toDto())
 
-        val service: UsersDataService = mockk {
+        val service: MaintenanceScheduleService = mockk {
             every { getUsersMaintenanceSchedule("1") } returns schedule
         }
 
@@ -34,7 +35,7 @@ class GetMaintenanceScheduleEndpointTest {
         assertEquals("application/json", response.header("content-type"))
         assertTrue(response.bodyString().startsWith("["))
         assertTrue(response.bodyString().endsWith("]"))
-        assertEquals(schedule, fromJson(this.getResourceFile("schedule.json").readText()))
+        assertEquals(schedule, fromJson(response.bodyString()))
     }
 
     @Test

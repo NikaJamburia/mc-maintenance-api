@@ -9,5 +9,7 @@ val objectMapper: ObjectMapper =
     ObjectMapper()
         .registerModule(KotlinModule())
         .registerModule(JavaTimeModule())
+@Deprecated("MessageL Use extension method", ReplaceWith("Any.asJson()"))
 fun <T> toJson(obj: T): String = objectMapper.writeValueAsString(obj)
+fun Any.asJson(): String = objectMapper.writeValueAsString(this)
 inline fun <reified T> fromJson(jsonString: String): T = objectMapper.readValue(jsonString)

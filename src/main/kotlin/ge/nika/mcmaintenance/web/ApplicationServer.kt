@@ -1,7 +1,9 @@
 package ge.nika.mcmaintenance.web
 
 import ge.nika.mcmaintenance.core.BikeSchedule
+import ge.nika.mcmaintenance.core.BikeScheduleDto
 import ge.nika.mcmaintenance.service.LogInService
+import ge.nika.mcmaintenance.service.MaintenanceScheduleService
 import ge.nika.mcmaintenance.service.UsersDataService
 import ge.nika.mcmaintenance.service.request.ConvertDistanceRequest
 import ge.nika.mcmaintenance.service.request.UserCredentials
@@ -20,7 +22,7 @@ import org.http4k.routing.bind
 import org.http4k.routing.routes
 import java.time.LocalDateTime.now
 
-fun applicationWebEndpoints(logInService: LogInService, usersDataService: UsersDataService): HttpHandler =
+fun applicationWebEndpoints(logInService: LogInService, usersDataService: MaintenanceScheduleService): HttpHandler =
     PrintRequestAndResponse()
         .then(Cors(CorsPolicy(OriginPolicy.AllowAll(), listOf("content-type", "session-id"), Method.values().toList(), true)))
         .then(HandleDomainErrors())
@@ -48,28 +50,28 @@ fun register(logInService: LogInService): RoutingHttpHandler =
         jsonResponse(Status.OK, user)
     }
 
-fun getMaintenanceSchedule(usersDataService: UsersDataService): RoutingHttpHandler =
+fun getMaintenanceSchedule(usersDataService: MaintenanceScheduleService): RoutingHttpHandler =
     "/maintenance-schedule" bind Method.GET to { request: Request ->
         val userId = request.header("user-id") ?: error("User not authorised")
         val schedule = usersDataService.getUsersMaintenanceSchedule(userId)
         jsonResponse(Status.OK, schedule)
     }
 
-fun saveMaintenanceSchedule(usersDataService: UsersDataService): RoutingHttpHandler =
+fun saveMaintenanceSchedule(usersDataService: MaintenanceScheduleService): RoutingHttpHandler =
     "/maintenance-schedule" bind Method.POST to { request: Request ->
         val userId = request.header("user-id") ?: error("User not authorised")
-        val schedule: List<BikeSchedule> = fromJson(request.bodyString())
+        val schedule: List<BikeScheduleDto> = fromJson(request.bodyString())
 
-        usersDataService.saveUsersMaintenanceSchedule(userId, schedule)
-        jsonResponse(Status.OK, SingleMessageResponse("schedule saved"))
+        val updated = usersDataService.saveUsersMaintenanceSchedule(userId, schedule)
+        jsonResponse(Status.OK, updated)
     }
 
-fun convertDistance(usersDataService: UsersDataService): RoutingHttpHandler =
+fun convertDistance(usersDataService: MaintenanceScheduleService): RoutingHttpHandler =
     "/convert-distance" bind Method.POST to { request: Request ->
         val userId = request.header("user-id") ?: error("User not authorised")
-        val request: ConvertDistanceRequest = fromJson(request.bodyString())
+        val requestBody: ConvertDistanceRequest = fromJson(request.bodyString())
 
-        val converted = usersDataService.convertDistances(request.schedule, request.newUnit)
+        val converted = usersDataService.convertDistances(userId, requestBody.schedule, requestBody.newUnit)
         jsonResponse(Status.OK, converted)
     }
 

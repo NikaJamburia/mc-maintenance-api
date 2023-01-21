@@ -3,6 +3,7 @@ package ge.nika.mcmaintenance
 import com.mongodb.client.MongoClients
 import ge.nika.mcmaintenance.persistence.repository.MongoRepository
 import ge.nika.mcmaintenance.service.LogInService
+import ge.nika.mcmaintenance.service.MaintenanceScheduleService
 import ge.nika.mcmaintenance.service.UsersDataService
 import ge.nika.mcmaintenance.service.crypto.BCrypt
 import ge.nika.mcmaintenance.web.applicationWebEndpoints
@@ -21,10 +22,10 @@ fun main() {
     val repository = MongoRepository(mongoClient, dbName)
 
     val logInService = LogInService(repository, BCrypt(), properties.getProperty("app.session-valid-for-minutes").toInt())
-    val usersDataService = UsersDataService(repository)
+    val maintenanceScheduleService = MaintenanceScheduleService(repository)
 
     println("Starting server on port $applicationPort")
-    applicationWebEndpoints(logInService, usersDataService)
+    applicationWebEndpoints(logInService, maintenanceScheduleService)
         .asServer(Netty(applicationPort))
         .start()
 }

@@ -1,5 +1,6 @@
 package ge.nika.mcmaintenance.core
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import java.time.LocalDate
 
 data class BikeSchedule(
@@ -16,6 +17,7 @@ data class BikeSchedule(
     }
 }
 
+@JsonIgnoreProperties(value = ["nextServiceMileage", "nextServiceDate", "entriesSorted"], allowGetters = true)
 data class ScheduleItem(
     val name: String,
     val intervalType: IntervalType,

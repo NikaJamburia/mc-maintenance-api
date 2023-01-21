@@ -1,9 +1,9 @@
 package ge.nika.mcmaintenance.service.request
 
-import ge.nika.mcmaintenance.core.BikeSchedule
+import ge.nika.mcmaintenance.core.BikeScheduleDto
 import ge.nika.mcmaintenance.core.DistanceUnit
 
 data class ConvertDistanceRequest (
-    val schedule: BikeSchedule,
+    val schedule: BikeScheduleDto,
     val newUnit: DistanceUnit
 )
